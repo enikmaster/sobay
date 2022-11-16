@@ -14,8 +14,6 @@ int userInput(int pid) {
 
     int quantArg = sscanf(buffer ,"%s %s %s %s %s %s", str[0], str[1], str[2], str[3], str[4], str[5]);
 
-    //printf("\n\nRecebi %d args\n\n", quantArg);
-
     if(strcmp(str[0], "exit") == 0) {
         if(quantArg == 1)
             return userExit(pid);
