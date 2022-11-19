@@ -9,4 +9,5 @@ all:
 	gcc -o ./frontend/backend ./backend/backend.c
 
 clean:
-	echo "verificar o que é suposto fazer"
+	rm ./frontend/frontend
+	rm ./backend/backend
