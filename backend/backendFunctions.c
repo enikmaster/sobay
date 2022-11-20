@@ -3,8 +3,13 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include "../constantes.h"
+#include <unistd.h>
+#include <sys/wait.h>
+
+//#include "../constantes.h"
 #include "backend.h"
+
+int pidfilho;
 
 int adminInput() {
 	char str[TAM];
@@ -46,4 +51,60 @@ void cmdCheck(const int argNum, const char* cmd, const char* arg) {
 		(argNum-1 != 0) ? printf("Este comando nao recebe argumentos...\n") : printf("Comando %s validado.\n", cmd);
 	else
 		printf("Comando '%s' desconhecido\n", cmd);
+}
+
+void stopPromotor(int x,siginfo_t* i, void* v){
+    if(kill(pidfilho, SIGUSR1) == -1 ){
+        printf("Não foi possivel enviar o sinal!");
+        return;
+    }
+	pidfilho = -1;
+}
+
+void lancaPromotores(char* fileName) {
+
+    int p[2];
+    char res[TAM];
+
+	char path[TAM] = "../promotores_prof/";
+	strcat(path, fileName);
+
+	if (pipe(p) == -1) {
+        printf("Erro ao criar o pipe\n");
+        return;
+    };
+
+	int i;
+    int f = fork();
+	pidfilho = f;
+
+    if (f == 0) { // filho
+
+        close(p[0]); // fecha o descritor de leitura
+        close(1); // fecha o stdout
+        dup(p[1]); // duplica o descritor de escrita para a pos do stdout
+        close(p[1]); // fecha do descritor de escrita do pipe criado
+
+		execl(path, "promotor", NULL);
+		printf("erro\n");
+		exit(1);
+        
+    } else if(f > 1) {
+		
+		close(p[1]);
+
+		struct sigaction sac = {0};
+        sac.sa_sigaction = stopPromotor;
+        if(sigaction(SIGINT, &sac, NULL)==-1){
+            printf("Erro no sigaction\n");
+		}
+
+		while (pidfilho != -1)
+		{
+			read(p[0], &res, TAM);
+        	printf("%s", res);
+		}
+		//waitpid(f, &i, 0);
+		close(p[0]);
+    }
 }
