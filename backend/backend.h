@@ -1,3 +1,6 @@
+#ifndef BACKEND_H
+#define BACKEND_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +11,23 @@
 
 #define TAM 256
 
+typedef struct item {
+    int id;
+    char titulo[TAM];
+    char categoria[TAM];
+    int valorAtual;
+    int compreJa;
+    int tempo;
+    char seller[TAM];
+    char bidder[TAM];
+    struct item* next;
+} item;
+
+
 int adminInput();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
 void lancaPromotores(char* fileName);
 void stopPromotor(int x,siginfo_t* i, void* v);
+struct item* recebeItems(struct item* itemptr);
+
+#endif

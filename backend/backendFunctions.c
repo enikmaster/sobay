@@ -5,6 +5,8 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include<fcntl.h>
+#include<errno.h>
 
 //#include "../constantes.h"
 #include "backend.h"
@@ -107,4 +109,86 @@ void lancaPromotores(char* fileName) {
 		//waitpid(f, &i, 0);
 		close(p[0]);
     }
+}
+
+struct item* recebeItems(struct item* itemptr) {
+
+
+	char buf[TAM] = "";
+	char c[1];
+	int fd;
+	
+
+	//int id, valor, compreja, tempo;
+	char titulo[TAM], categoria[TAM], seller[TAM], bidder[TAM], id[5], valor[5], compreja[5], tempo[5];
+
+
+	if ((fd = open("../conteudos/itens.txt", O_RDONLY)) == -1) {
+		printf("Erro ao abrir o ficheiro");
+	}
+
+
+	while (read(fd, c, sizeof(char)) != 0)
+	{
+		item* itemAux = malloc(sizeof(item));
+		item* itemAuxItr = itemptr;
+
+		if (c[0] == '\n')
+		{
+			sscanf(buf, "%s %s %s %s %s %s %s %s", id, titulo, categoria, valor, compreja, tempo, seller, bidder);
+			
+			// INT
+			itemAux->id = atoi(id);
+			itemAux->valorAtual = atoi(valor);
+			itemAux->compreJa = atoi(compreja);
+			itemAux->tempo = atoi(tempo);
+			
+			// STRINGS
+			strcpy(itemAux->titulo, titulo);
+			strcpy(itemAux->categoria, categoria);
+			strcpy(itemAux->seller, seller);
+			strcpy(itemAux->bidder, bidder);
+
+			itemAux->next = NULL;
+
+			if(itemptr == NULL) {
+				itemptr = itemAux;
+			} else {
+				while (itemAuxItr->next != NULL)
+				{
+					itemAuxItr = itemAuxItr->next;
+				}
+				itemAuxItr->next = itemAux;
+			}
+
+			strcpy(buf, "");
+		} else {
+			strncat(buf, c, 1);
+		}
+		
+		
+	}
+	
+
+	close(fd);
+
+	return itemptr;
+}
+
+void showItens(struct item* itemptr) {
+	if (itemptr == NULL)
+	{
+		printf("Não existem items à venda");
+		return;
+	}
+
+
+	item* aux = itemptr;
+
+	while (aux != NULL)
+	{
+		printf("ID: %d | Titulo: %s | Categoria: %s | Valor Atual: %d | Compre já: %d | Tempo Restante: %d | Seller: %s | Bidder: %s\n", aux->id, aux->titulo, aux->categoria, aux->valorAtual, aux->compreJa, aux->tempo, aux->seller, aux->bidder);
+		aux = aux->next;
+	}
+	
 }

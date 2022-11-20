@@ -9,7 +9,11 @@
 
 void main(int argc, char** argv) {
 
+	struct item* listaItens = NULL;
+	listaItens =  recebeItems(listaItens);
+	showItens(listaItens);
+
 	// verificação de backend já em execução
 	printf("Bem-vindo administrador\n");
-	adminInput();
+	//adminInput();
 }
