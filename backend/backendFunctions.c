@@ -33,6 +33,7 @@ int adminInput() {
 			puts("Demasiados argumentos");
 		} else {
 			char cmd[TAM], arg[TAM];
+			strcpy(cmd, tolower(cmd)); 
 			int argNum = sscanf(str, "%s %s", cmd, arg);
 			cmdCheck(argNum, cmd, arg);
 		}
