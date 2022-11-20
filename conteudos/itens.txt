@@ -1,1 +1,0 @@
-<id> <nome> <categoria> <valor atual> <valor compre já> <duração> <username seller> <username bider>

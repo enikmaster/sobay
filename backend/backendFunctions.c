@@ -139,7 +139,7 @@ struct item* recebeItems(struct item* itemptr) {
 	char titulo[TAM], categoria[TAM], seller[TAM], bidder[TAM], id[5], valor[5], compreja[5], tempo[5];
 
 
-	if ((fd = open("../conteudos/itens.txt", O_RDONLY)) == -1) {
+	if ((fd = open("../conteudos/FITEMS.txt", O_RDONLY)) == -1) {
 		printf("Erro ao abrir o ficheiro");
 	}
 
