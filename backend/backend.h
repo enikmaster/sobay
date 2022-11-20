@@ -10,6 +10,13 @@
 #include <sys/wait.h>
 
 #define TAM 256
+typedef struct user User, *pUser;
+struct user {
+	int pid;
+	char nome[TAM];
+	int saldo;
+	pUser next;
+};
 
 typedef struct item {
     int id;
@@ -29,5 +36,7 @@ void cmdCheck(const int argNum, const char* cmd, const char* arg);
 void lancaPromotores(char* fileName);
 void stopPromotor(int x,siginfo_t* i, void* v);
 struct item* recebeItems(struct item* itemptr);
+void checkUsers();
+void cmdCheck(const int argNum, const char* cmd, const char* arg);
 
 #endif
