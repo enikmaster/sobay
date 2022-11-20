@@ -15,9 +15,12 @@
 int pidfilho;
 
 int adminInput() {
+
 	char str[TAM];
 	do {
-		puts("O que pretende testar?");
+		printf("O que pretende testar?\n");
+		setbuf(stdin, NULL);
+		//fgets(str, TAM, stdin);
 		fgets(str, TAM, stdin);
 		int cnt = 0;
 		for (int i = 0; i < strlen(str); ++i) {

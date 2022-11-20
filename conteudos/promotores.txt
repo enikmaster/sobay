@@ -1,2 +1,0 @@
-black_friday(linux_x64)
-promotor_oficial(linux_x64)

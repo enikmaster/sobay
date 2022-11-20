@@ -36,6 +36,7 @@ void cmdCheck(const int argNum, const char* cmd, const char* arg);
 void lancaPromotores(char* fileName);
 void stopPromotor(int x,siginfo_t* i, void* v);
 struct item* recebeItems(struct item* itemptr);
+void showItens(struct item* itemptr);
 void checkUsers();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
 
