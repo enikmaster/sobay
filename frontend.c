@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include "frontend.h"
 //#include "frontendFunctions.c"
 
@@ -36,30 +31,20 @@ int main (int argc, char **argv) {
 
     utilizadorLogin u;
     u.comando = login;
+    u.seguinte = NULL;
     strcpy(u.username, argv[1]);
     strcpy(u.pwd, argv[2]);
     strcpy(u.fifoname, fifoname);
     
-    printf("COM: %d | USERNAME: %s | PDW: %s | FIFO: %s \n", u.comando, u.username, u.pwd, u.fifoname);
     write(sendFD, &u, sizeof(u));
     close(sendFD);
 
-    int verificaLogin;  // 1 -> Se a operação for autorizada pelo backend // 0 -> se for rejeitado
+    int res;  // 1 -> Se a operação for autorizada pelo backend // 0 -> se for rejeitado
 
-    printf("rcv:");
-
+    while (read(rcvFD, &res, sizeof(int)) < 1) {}
     
 
-    
-
-    while (read(rcvFD, &verificaLogin, sizeof(int)) < 1)
-    {
-    
-    }
-    
-    printf("Recebeu %d", verificaLogin);
-
-    if(argc < 3 || verificaLogin == 0) {
+    if(argc < 3 || res == 0) {
         printf("Dados incorretos.");
         unlink(fifoname);
         return 1;
@@ -67,11 +52,10 @@ int main (int argc, char **argv) {
 
     int v = 0;
 
-    
     printf("Bem vindo, %s!\n", argv[1]);
 
     do {
-        v = userInput(pid);
+        v = userInput(u.username, pid);
     } while (v == 0);
 
     unlink(fifoname);

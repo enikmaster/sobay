@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 #include "constantes.h"
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "common.h"
 
 
@@ -11,13 +15,27 @@ typedef struct utilizadorLogin {
     char username[TAM];
     char pwd[TAM];
     char fifoname[TAM];
+    struct utilizadorLogin * seguinte;
 } utilizadorLogin;
 
-int userInput(int pid);
+typedef struct utilizadorSell {
+    comando comando;
+    int id;
+    char titulo[TAM];
+    char categoria[TAM];
+    int valorAtual;
+    int compreJa;
+    int tempo;
+    char seller[TAM];
+    char bidder[TAM];
+    struct item* next;
+} utilizadorSell;
+
+int userInput(char* user, int pid);
 
 int userExit(int pid);
 
-void userSell(int pid, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo );
+void userSell(char* user, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo );
 
 void userList(int pid);
 

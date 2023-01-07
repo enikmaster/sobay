@@ -37,7 +37,17 @@ typedef struct utilizadorLogin {
     char username[TAM];
     char pwd[TAM];
     char fifoname[TAM];
+    struct utilizadorLogin * seguinte;
 } utilizadorLogin;
+
+typedef struct utilizadorSell {
+    char user[TAM];
+    char item[TAM];
+    char categoria[TAM];
+    int precoBase;
+    int precoCompreJa;
+    int duracao;
+} utilizadorSell;
 
 
 int adminInput();
@@ -48,6 +58,13 @@ struct item* recebeItems(struct item* itemptr);
 void showItens(struct item* itemptr);
 void checkUsers();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
+
+typedef struct
+{
+    utilizadorLogin* online;
+    pthread_mutex_t mutex;
+    struct item* itens;
+}TDADOS; 
 
 
 void *receive();
