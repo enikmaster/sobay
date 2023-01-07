@@ -1,13 +1,17 @@
+all:
+	gcc -pthread -lpthread -o front frontend.c frontendFunctions.c
+	gcc -pthread -lpthread -o back backend.c users_lib.o backendFunctions.c
+
+
 frontend:
-	gcc -o frontend ./frontend/frontend.c ./frontend/frontendFunctions.c
+	gcc -lpthread -o front frontend.c frontendFunctions.c
 
 backend:
-	gcc -o backend ./backend/backend.c ./backend/users_lib.o ./backend/backendFuctions.c
+	gcc -lpthread -o back backend.c users_lib.o backendFunctions.c
 
-all:
-	gcc -o frontend ./frontend/frontend.c ./frontend/frontendFunctions.c 
-	gcc -o backend ./backend/backend.c ./backend/users_lib.o ./backend/backendFuctions.c
 
 clean:
-	rm ./frontend/frontend
-	rm ./backend/backend
+	rm front
+	rm back
+	rm BACKEND
+	rm FRONT*
