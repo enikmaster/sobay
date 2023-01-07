@@ -213,23 +213,50 @@ void showItens(struct item* itemptr) {
 	
 }
 
+void addItem(item* i, item a) {
+
+	item* aux = malloc(sizeof(item));
+
+	strcpy(aux->bidder, a.bidder);
+	strcpy(aux->categoria, a.categoria);
+	strcpy(aux->seller, a.seller);
+	strcpy(aux->titulo, a.titulo);
+	aux->valorAtual = a.valorAtual;
+	aux->compreJa = a.valorAtual;
+	aux->next = NULL;
+	aux->tempo = a.tempo;
+
+	if (i == NULL)
+	{
+		aux->id = 1;
+		i = aux;
+		return;
+	} else {
+		item* aux_itr = i;
+
+		while (aux_itr->next != NULL)
+		{
+			aux_itr = aux_itr->next;
+		}
+		aux->id = aux_itr->id + 1;
+		aux_itr->next = aux;
+		return;
+	}
+	
+}
+
 
 /* THREADS */
 
-void teste() {
-
-	
-
-	
-
-}
-
-void *receive()
+void *receive(void  *dados)
 {
-	int rcvFD = open(BACKEND, O_RDONLY);
+	int rcvFD = open(BACKEND, O_RDWR);
+
+	TDADOS *pdados = (TDADOS *) dados;
 
 	comando com;
 	utilizadorLogin u;
+	item s;
 	int res;
 
 	while (1)
@@ -244,7 +271,6 @@ void *receive()
 			read(rcvFD, &u, sizeof(u));
 			res = isUserValid(u.username, u.pwd);
 			int sndFD = open(u.fifoname, O_RDWR);
-			//printf("%d", res);
 
 			if (res == -1)
 			{
@@ -259,16 +285,52 @@ void *receive()
 			}
 			else if (res == 1)
 			{
-				printf("Utilizador válido, prosseguir login.");
+
+				utilizadorLogin* aux = malloc(sizeof(utilizadorLogin));
+				strcpy(aux->username, u.username);
+				strcpy(aux->pwd, u.pwd);
+				strcpy(aux->fifoname, u.fifoname);
+				aux->seguinte = NULL;
+
+				pthread_mutex_lock(&(pdados->mutex));
+				if (pdados->online == NULL)
+				{
+					pdados->online = aux;
+				} else {
+					utilizadorLogin* pdados_aux;
+					pdados_aux = pdados->online;
+
+					while (pdados_aux->seguinte != NULL)
+					{
+						pdados_aux = pdados_aux->seguinte;
+					}
+
+					pdados_aux->seguinte = aux;
+					
+				}
 				
-				int x = write(sndFD, &res, sizeof(int));
-				printf("Erro: %d", x);
+				pthread_mutex_unlock(&(pdados->mutex));
+				
+				write(sndFD, &res, sizeof(int));
 				close(sndFD);
 			}
-			// close(sndFD);
+			break;
+		case sell:
+
+			read(rcvFD, &s, sizeof(s));
+
+			if (s.valorAtual > 0 && s.compreJa > 0 && s.tempo > 0)
+			{
+				pthread_mutex_lock(&(pdados->mutex));
+				addItem(pdados->itens, s);
+				pthread_mutex_unlock(&(pdados->mutex));
+				res = 1;
+			} else
+				res = 0;
+		
+			write(sndFD, &res, sizeof(int));
 			break;
 		case noCMD:
-			//printf("nocmd");
 			break;
 		default:
 			printf("Default");

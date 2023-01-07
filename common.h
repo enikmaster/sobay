@@ -21,4 +21,9 @@ typedef enum{
     exitP
 } comando;
 
+typedef struct{
+    comando cmd;
+    int i;
+} response;
+
 #endif

@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include "frontend.h"
 
-int userInput(int pid) {
+int userInput(char* username, int pid) {
 
     char buffer[TAM];
     char str[6][TAM];
@@ -21,7 +21,7 @@ int userInput(int pid) {
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "sell") == 0) {
         if (quantArg == 6)
-            userSell(pid, str[1], str[2], atoi(str[3]), atoi(str[4]), atoi(str[5]));
+            userSell(username, str[1], str[2], atoi(str[3]), atoi(str[4]), atoi(str[5]));
         else
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "list") == 0) {
@@ -81,8 +81,24 @@ int userExit(int pid) {
     return 1;
 }
 
-void userSell(int pid, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo ) {
-    printf("O utilizador %d colocou à venda o item %s da categoria %s com o preço Base %d, o preco compre já %d durante %d segundos.\n", pid, nItem, categoria, precoBase, precoCompreJa, tempo);
+void userSell(char* user, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo ) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorSell s;
+
+    s.comando = sell;
+    strcpy(s.categoria, categoria);
+    strcpy(s.titulo, nItem);
+    strcpy(s.seller, user);
+    strcpy(s.bidder, "-");
+    s.next = NULL;
+    s.valorAtual = precoBase;
+    s.compreJa = precoCompreJa;
+    s.tempo = tempo;
+    s.id = -1;
+
+    write(sendFD, &s, sizeof(s));
+    close(sendFD);
 }
 
 void userList(int pid) {

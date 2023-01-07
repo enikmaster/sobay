@@ -19,16 +19,18 @@ void main(int argc, char** argv) {
 	} else {
 			int loadUsers = loadUsersFile(USER_PATH);
 
-			
-			struct item* listaItens = NULL;
-			listaItens =  recebeItems(listaItens);
-			// showItens(listaItens);
+		
+			TDADOS dados;
+			dados.online = NULL;
+			dados.itens = NULL;
+			dados.itens = recebeItems(dados.itens);
+			pthread_mutex_init(&(dados.mutex), NULL);
 
 			// verificação de backend já em execução
 			puts("Bem-vindo administrador");
 
 			pthread_t rcv;
-			if (pthread_create(&rcv, NULL, &receive, NULL) != 0)
+			if (pthread_create(&rcv, NULL, &receive, &dados) != 0)
 			{
 				printf("Erro com a thread que recebe data do frontend");
 				return 1;
@@ -53,7 +55,39 @@ void main(int argc, char** argv) {
 
 			while (1)
 			{
-				/* code */
+				sleep(2);
+				printf("Utilizadores online:\n");
+				/*if (dados.online == NULL)
+				{
+					printf("Sem utilizadores online.\n");
+				} else {
+					utilizadorLogin* aux = malloc(sizeof(utilizadorLogin));
+					aux = dados.online;
+					while (aux != NULL)
+					{
+						printf("Nome: %s\n", aux->username);
+						aux = aux->seguinte;
+					}
+					
+					
+				}*/
+
+				if (dados.itens == NULL)
+				{
+					printf("Não há itens à venda.");
+				} else {
+					struct item* aux = dados.itens;
+
+					while (aux != NULL)
+					{
+						printf("Nome: %s | Preço: %d\n", aux->titulo, aux->compreJa);
+						aux = aux->next;
+					}
+					
+				}
+				
+				
+				
 			}
 
 			pthread_join(rcv, NULL);
