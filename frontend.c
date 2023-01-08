@@ -50,13 +50,32 @@ int main (int argc, char **argv) {
         return 1;
     }
 
-    int v = 0;
+   
 
     printf("Bem vindo, %s!\n", argv[1]);
 
-    do {
-        v = userInput(u.username, pid);
-    } while (v == 0);
+    TDADOS_FRONT dados;
+    strcpy(dados.fifoname, fifoname);
+    strcpy(dados.username, u.username);
+
+    pthread_t rcv;
+    if (pthread_create(&rcv, NULL, &receive, &dados) != 0)
+    {
+        printf("Erro ao iniciar thread\n");
+        return 0;
+    }
+    
+    pthread_t input;
+    if (pthread_create(&input, NULL, &cmdInput, &dados) != 0)
+    {           
+        printf("Erro ao iniciar thread\n");
+        return 0;
+    }
+    
+    pthread_join(input, NULL);
+    
+
+    
 
     unlink(fifoname);
     return 0;

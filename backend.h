@@ -49,6 +49,16 @@ typedef struct utilizadorSell {
     int duracao;
 } utilizadorSell;
 
+typedef struct {
+    char username[TAM];
+} utilizadorList;
+
+typedef struct {
+    char username[TAM];
+    char str[TAM];
+    int i;
+} utilizadorLi_;
+
 
 int adminInput();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
@@ -63,9 +73,10 @@ typedef struct
 {
     utilizadorLogin* online;
     pthread_mutex_t mutex;
-    struct item* itens;
+    item* itens;
 }TDADOS; 
 
+void findFifo(utilizadorLogin* online, char* user, char * f);
 
 void *receive();
 void *TadminInput(item* listaItens);

@@ -21,9 +21,23 @@ typedef enum{
     exitP
 } comando;
 
+typedef struct {
+    char titulo[TAM];
+    char categoria[TAM];
+    int precoBase;
+    int precoCompreJa;
+    int duracao;
+    int id;
+} listItem;
+
+
 typedef struct{
     comando cmd;
     int i;
-} response;
+    char str[TAM];
+    int quantItens;
+    listItem itens[30];
+} responseToFrontend;
+
 
 #endif

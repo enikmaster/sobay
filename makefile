@@ -4,10 +4,10 @@ all:
 
 
 frontend:
-	gcc -lpthread -o front frontend.c frontendFunctions.c
+	gcc -lpthread -pthread -o front frontend.c frontendFunctions.c
 
 backend:
-	gcc -lpthread -o back backend.c users_lib.o backendFunctions.c
+	gcc -lpthread -pthread -o back backend.c users_lib.o backendFunctions.c
 
 
 clean:

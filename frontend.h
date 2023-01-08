@@ -7,6 +7,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <pthread.h>
 #include "common.h"
 
 
@@ -31,21 +32,39 @@ typedef struct utilizadorSell {
     struct item* next;
 } utilizadorSell;
 
+typedef struct {
+    char fifoname[TAM];
+    char username[TAM];
+}TDADOS_FRONT;
+
+typedef struct {
+    comando comando;
+    char username[TAM];
+} utilizadorList;
+
+typedef struct {
+    comando comando;
+    char username[TAM];
+    char str[TAM];
+    int i;
+} utilizadorLi_;
+
+
 int userInput(char* user, int pid);
 
 int userExit(int pid);
 
 void userSell(char* user, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo );
 
-void userList(int pid);
+void userList(char* user);
 
-void userLicat(int pid, char* categoria);
+void userLicat(char* user, char* categoria);
 
-void userLiSel(int pid, char* username);
+void userLiSel(char* user, char* username);
 
-void userLiVal(int pid, int precoMax);
+void userLiVal(char* user, int precoMax);
 
-void userLiTime(int pid, int tempo);
+void userLiTime(char* user, int tempo);
 
 void userTime(int pid);
 
@@ -54,6 +73,14 @@ void userBuy(int pid, int itemID, int valor);
 void userCash(int pid);
 
 void userAdd(int pid, int valor);
+
+
+
+
+// THREADS
+
+void* receive(void* dados);
+void* cmdInput(void* dados);
 
 #endif
 //comandos frontend
