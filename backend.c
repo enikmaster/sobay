@@ -53,10 +53,12 @@ void main(int argc, char** argv) {
 			if (x == -1)
 				printf("Erro ao gravar utilizadores");
 
+
+			int a;
 			while (1)
 			{
 				sleep(2);
-				printf("Utilizadores online:\n");
+				//printf("Utilizadores online:\n");
 				/*if (dados.online == NULL)
 				{
 					printf("Sem utilizadores online.\n");
@@ -65,14 +67,14 @@ void main(int argc, char** argv) {
 					aux = dados.online;
 					while (aux != NULL)
 					{
-						printf("Nome: %s\n", aux->username);
+						printf("Nome: %s\n FIFO: %s", aux->username, aux->fifoname);
 						aux = aux->seguinte;
 					}
 					
 					
 				}*/
 
-				if (dados.itens == NULL)
+				/*if (dados.itens == NULL)
 				{
 					printf("Não há itens à venda.");
 				} else {
@@ -84,7 +86,7 @@ void main(int argc, char** argv) {
 						aux = aux->next;
 					}
 					
-				}
+				}*/
 				
 				
 				
