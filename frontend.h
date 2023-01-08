@@ -49,6 +49,24 @@ typedef struct {
     int i;
 } utilizadorLi_;
 
+typedef struct{
+    comando comando;
+    char username[TAM];
+    int id;
+    int valor;
+}utilizadorBuy;
+
+typedef struct{
+    comando comando;
+    char username[TAM];
+}utilizadorCash;
+
+typedef struct{
+    comando comando;
+    char username[TAM];
+    int valor;
+}utilizadorAdd;
+
 
 int userInput(char* user, int pid);
 
@@ -68,11 +86,11 @@ void userLiTime(char* user, int tempo);
 
 void userTime(int pid);
 
-void userBuy(int pid, int itemID, int valor);
+void userBuy(char* user, int itemID, int valor);
 
-void userCash(int pid);
+void userCash(char* user);
 
-void userAdd(int pid, int valor);
+void userAdd(char* user, int valor);
 
 
 

@@ -57,17 +57,17 @@ int userInput(char* username, int pid) {
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "buy") == 0) {
         if (quantArg == 3)
-            userBuy(pid, atoi(str[1]), atoi(str[2]));
+            userBuy(username, atoi(str[1]), atoi(str[2]));
         else
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "cash") == 0) {
         if (quantArg == 1)
-            userCash(pid);
+            userCash(username);
         else
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "add") == 0) {
         if (quantArg == 2)
-            userAdd(pid, atoi(str[1]));
+            userAdd(username, atoi(str[1]));
         else
             printf("Número de argumentos errados!\n");
     } else {
@@ -171,16 +171,43 @@ void userTime(int pid) {
     printf("O utilizador %d quer saber a hora atual.\n", pid);
 }
 
-void userBuy(int pid, int itemID, int valor) {
-    printf("O utilizador %d quer comprar o item %d, por %d\n", pid, itemID, valor);
+void userBuy(char* user, int itemID, int valor) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorBuy b;
+
+    b.comando = buy;
+    strcpy(b.username, user);
+    b.id = itemID;
+    b.valor = valor;
+
+    write(sendFD, &b, sizeof(b));
+    close(sendFD);
 }
 
-void userCash(int pid) {
-    printf("O utilizador %d quer saber o seu saldo\n", pid);
+void userCash(char* user) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorBuy b;
+
+    b.comando = cash;
+    strcpy(b.username, user);
+
+    write(sendFD, &b, sizeof(b));
+    close(sendFD);
 }
 
-void userAdd(int pid, int valor) {
-    printf("O utilizador %d quer adicinoar %d ao seu saldo\n", pid, valor);
+void userAdd(char* user, int valor) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorAdd a;
+
+    a.comando = add;
+    strcpy(a.username, user);
+    a.valor = valor;
+
+    write(sendFD, &a, sizeof(a));
+    close(sendFD);
 }
 
 
@@ -262,6 +289,40 @@ void* receive(void* dados) {
                 printf("Compre Já: %d\n", res.itens[i].precoCompreJa);
                 printf("Tempo Restante: %d\n", res.itens[i].duracao);
             }
+        break;
+        case buy:
+            /*
+                0: Não tem dinhero
+                1: comprou logo
+                2: passou a bidder
+                3: não encontrado
+            */
+           switch (res.i)
+           {
+           case 0:
+            printf("Não tem dinheiro para comprar este artigo.\n");
+            break;
+           case 1:
+            printf("PARABÉNS! Comprou o artigo\n");
+            break;
+            case 2:
+            printf("É algora o BIDDER mais alto deste artigo.\n");
+            break;
+            case 3:
+            printf("Esse produto não existe. Tente de novo.\n");
+            break;
+            case 4:
+            printf("Valor licitado abaixo do valor atual.\n");
+            break;
+           default:
+            break;
+           }
+        break;
+        case cash:
+            printf("Tem neste momento: %d€\n", res.i);
+        break;
+        case add:
+            printf("Saldo atualizado! Tem agora %d€\n", res.i);
         break;
         default:
             break;

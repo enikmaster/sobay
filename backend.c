@@ -26,7 +26,6 @@ void main(int argc, char** argv) {
 			dados.itens = recebeItems(dados.itens);
 			pthread_mutex_init(&(dados.mutex), NULL);
 
-			// verificação de backend já em execução
 			puts("Bem-vindo administrador");
 
 			pthread_t rcv;

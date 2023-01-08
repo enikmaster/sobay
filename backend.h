@@ -59,6 +59,21 @@ typedef struct {
     int i;
 } utilizadorLi_;
 
+typedef struct{
+    char username[TAM];
+    int id;
+    int valor;
+}utilizadorBuy;
+
+typedef struct{
+    char username[TAM];
+}utilizadorCash;
+
+typedef struct{
+    char username[TAM];
+    int valor;
+}utilizadorAdd;
+
 
 int adminInput();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
@@ -71,6 +86,7 @@ void cmdCheck(const int argNum, const char* cmd, const char* arg);
 
 typedef struct
 {
+    int itemid;
     utilizadorLogin* online;
     pthread_mutex_t mutex;
     item* itens;
