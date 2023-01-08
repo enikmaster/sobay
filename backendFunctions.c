@@ -239,7 +239,7 @@ void addItem(item *i, item a)
 	strcpy(aux->seller, a.seller);
 	strcpy(aux->titulo, a.titulo);
 	aux->valorAtual = a.valorAtual;
-	aux->compreJa = a.valorAtual;
+	aux->compreJa = a.compreJa;
 	aux->next = NULL;
 	aux->tempo = a.tempo;
 
@@ -261,6 +261,32 @@ void addItem(item *i, item a)
 		aux_itr->next = aux;
 		return;
 	}
+}
+
+void removeItem(item *i, int id) {
+	if (i == NULL)
+	{
+		return;
+	} else if (i->id == id)
+	{
+		free(i);
+		i = NULL;
+	} else {
+		item* aux = i;
+
+		while (aux != NULL)
+		{
+			if (aux->next->id == id)
+			{	
+				aux->next = aux->next->next;
+				break;
+			}
+			aux = aux->next;
+		}
+		
+	}
+	
+	
 }
 
 void findFifo(utilizadorLogin *online, char *user, char *f)
@@ -285,6 +311,8 @@ void *receive(void *dados)
 {
 	int rcvFD = open(BACKEND, O_RDWR);
 
+	int loadUsers = loadUsersFile(USER_PATH);
+
 	TDADOS *pdados = (TDADOS *)dados;
 
 	comando com;
@@ -293,7 +321,9 @@ void *receive(void *dados)
 	item s;
 	utilizadorList l;
 	utilizadorLi_ l_;
-	;
+	utilizadorBuy b;
+	utilizadorCash c;
+	utilizadorAdd a;
 
 	int res;
 	int sndFD;
@@ -542,6 +572,114 @@ void *receive(void *dados)
 
 			write(sndFD, &resToFE, sizeof(responseToFrontend));
 			close(sndFD);
+		break;
+		case buy:
+			read(rcvFD, &b, sizeof(b));
+
+			pthread_mutex_lock(&(pdados->mutex));
+			findFifo(pdados->online, b.username, fifo);
+			pthread_mutex_unlock(&(pdados->mutex));
+			
+			sndFD = open(fifo, O_RDWR);
+			resToFE.cmd = buy;
+
+			int encontrou = 0;
+
+			listaAux = pdados->itens;
+			
+
+			while (listaAux != NULL)
+			{
+				
+				if (listaAux->id == b.id)
+				{
+					
+					if (listaAux->compreJa <= b.valor)
+					{
+						if (b.valor <= getUserBalance(b.username))
+						{
+							updateUserBalance(listaAux->bidder, getUserBalance(listaAux->bidder) + listaAux->valorAtual);
+							updateUserBalance(listaAux->seller, getUserBalance(listaAux->seller) + listaAux->compreJa);
+							strcpy(listaAux->bidder, b.username);
+
+							removeItem(pdados->itens, b.id);
+
+							// SUCESSO COMPROU LOGO
+							updateUserBalance(b.username, getUserBalance(b.username) - listaAux->compreJa);
+							resToFE.i = 1;
+						} else {
+							// NÃO TEM SALDO
+							resToFE.i = 0;
+						}
+						
+					} else if (listaAux->valorAtual < b.valor) {
+						if (b.valor <= getUserBalance(b.username))
+						{
+
+							updateUserBalance(listaAux->bidder, getUserBalance(listaAux->bidder) + listaAux->valorAtual);
+
+							listaAux->valorAtual = b.valor;
+							strcpy(listaAux->bidder, b.username);
+
+							// PASSOU A BIDDER MAIS ALTO
+							updateUserBalance(b.username, getUserBalance(b.username) - b.valor);
+							resToFE.i = 2;
+						} else {
+							// NÃO TEM SALDO
+							resToFE.i = 0;
+						}
+					} else {
+						// O VALOR LICITADO É MENOR QUE O VALOR ATUAL
+						resToFE.i = 4;
+					}
+					encontrou = 1;
+				}
+				
+				if (encontrou == 0)
+					resToFE.i = 3;
+				
+
+				listaAux = listaAux->next;
+				
+			}
+
+			write(sndFD, &resToFE, sizeof(responseToFrontend));
+			close(sndFD);
+			saveUsersFile(USER_PATH);
+		break;
+		case cash:
+			read(rcvFD, &c, sizeof(c));
+
+			pthread_mutex_lock(&(pdados->mutex));
+			findFifo(pdados->online, c.username, fifo);
+			pthread_mutex_unlock(&(pdados->mutex));
+
+			sndFD = open(fifo, O_RDWR);
+			resToFE.cmd = cash;
+
+			resToFE.i = getUserBalance(c.username);
+
+			write(sndFD, &resToFE, sizeof(responseToFrontend));
+			close(sndFD);
+		break;
+
+		case add:
+			read(rcvFD, &a, sizeof(a));
+
+			pthread_mutex_lock(&(pdados->mutex));
+			findFifo(pdados->online, c.username, fifo);
+			pthread_mutex_unlock(&(pdados->mutex));
+
+			sndFD = open(fifo, O_RDWR);
+			resToFE.cmd = add;
+
+			updateUserBalance(a.username, getUserBalance(a.username) + a.valor);
+
+			resToFE.i = getUserBalance(a.username);
+
+			write(sndFD, &resToFE, sizeof(responseToFrontend));
+			close(sndFD);
+			saveUsersFile(USER_PATH);
 		break;
 		case noCMD:
 			break;
