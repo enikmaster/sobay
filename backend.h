@@ -74,6 +74,13 @@ typedef struct{
     int valor;
 }utilizadorAdd;
 
+typedef struct{
+    char username[TAM];
+}utilizadorExit;
+
+typedef struct{
+    char username[TAM];
+}utilizadorTime;
 
 int adminInput();
 void cmdCheck(const int argNum, const char* cmd, const char* arg);
@@ -87,14 +94,17 @@ void cmdCheck(const int argNum, const char* cmd, const char* arg);
 typedef struct
 {
     int itemid;
+    int tempo;
     utilizadorLogin* online;
     pthread_mutex_t mutex;
     item* itens;
 }TDADOS; 
 
 void findFifo(utilizadorLogin* online, char* user, char * f);
+utilizadorLogin* removeOnline(char* username, utilizadorLogin* l);
 
-void *receive();
+void *receive(void *dados);
 void *TadminInput(item* listaItens);
+void *segundo(void * dados);
 
 #endif

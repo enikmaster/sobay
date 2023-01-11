@@ -17,7 +17,7 @@ int userInput(char* username, int pid) {
 
     if(strcmp(str[0], "exit") == 0) {
         if(quantArg == 1)
-            return userExit(pid);
+            return userExit(username);
         else
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "sell") == 0) {
@@ -52,7 +52,7 @@ int userInput(char* username, int pid) {
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "time") == 0) {
         if (quantArg == 1)
-            userTime(pid);
+            userTime(username);
         else
             printf("Número de argumentos errados!\n");
     } else if (strcmp(str[0], "buy") == 0) {
@@ -77,8 +77,16 @@ int userInput(char* username, int pid) {
     return 0;
 }
 
-int userExit(int pid) {
-    printf("Utilizador com pid: %d pediu para sair.\n", pid);
+int userExit(char *user) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorExit e;
+    e.comando = exitP;
+    strcpy(e.username, user);
+
+    write(sendFD, &e, sizeof(e));
+    close(sendFD);
+
     return 1;
 }
 
@@ -167,8 +175,16 @@ void userLiTime(char* user, int tempo) {
     close(sendFD);
 }
 
-void userTime(int pid) {
-    printf("O utilizador %d quer saber a hora atual.\n", pid);
+void userTime(char* user) {
+    int sendFD = open(BACKEND, O_RDWR);
+
+    utilizadorTime t;
+
+    t.comando = timeP;
+    strcpy(t.username, user);
+
+    write(sendFD, &t, sizeof(t));
+    close(sendFD);
 }
 
 void userBuy(char* user, int itemID, int valor) {
@@ -323,6 +339,9 @@ void* receive(void* dados) {
         break;
         case add:
             printf("Saldo atualizado! Tem agora %d€\n", res.i);
+        break;
+        case timeP:
+            printf("Hora atual: %d\n", res.i);
         break;
         default:
             break;

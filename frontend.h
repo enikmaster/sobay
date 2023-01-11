@@ -67,10 +67,20 @@ typedef struct{
     int valor;
 }utilizadorAdd;
 
+typedef struct{
+    comando comando;
+    char username[TAM];
+}utilizadorExit;
+
+typedef struct{
+    comando comando;
+    char username[TAM];
+}utilizadorTime;
+
 
 int userInput(char* user, int pid);
 
-int userExit(int pid);
+int userExit(char* user);
 
 void userSell(char* user, char* nItem, char* categoria, int precoBase, int precoCompreJa, int tempo );
 
@@ -84,7 +94,7 @@ void userLiVal(char* user, int precoMax);
 
 void userLiTime(char* user, int tempo);
 
-void userTime(int pid);
+void userTime(char* user);
 
 void userBuy(char* user, int itemID, int valor);
 
