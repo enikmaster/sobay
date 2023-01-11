@@ -289,6 +289,27 @@ void removeItem(item *i, int id) {
 	
 }
 
+utilizadorLogin* removeOnline(char* username, utilizadorLogin* l) {
+	utilizadorLogin* aux = l;
+
+	if (strcmp(l->username, username) == 0)
+	{
+		l = l->seguinte;
+		return l;
+	}
+	
+
+	while (aux != NULL)
+	{
+		if (strcmp(aux->seguinte->username, username) == 0)
+		{
+			aux->seguinte = aux->seguinte->seguinte;
+		}
+		aux = aux->seguinte;
+	}
+	return l;
+}
+
 void findFifo(utilizadorLogin *online, char *user, char *f)
 {
 	utilizadorLogin *aux = online;
@@ -324,6 +345,8 @@ void *receive(void *dados)
 	utilizadorBuy b;
 	utilizadorCash c;
 	utilizadorAdd a;
+	utilizadorExit e;
+	utilizadorTime t;
 
 	int res;
 	int sndFD;
@@ -338,6 +361,13 @@ void *receive(void *dados)
 		switch (com)
 		{
 
+		case exitP:
+
+		read(rcvFD, &e, sizeof(e));
+
+		pdados->online = removeOnline(e.username, pdados->online);
+
+		break;
 		case login:
 
 			read(rcvFD, &u, sizeof(u));
@@ -681,6 +711,22 @@ void *receive(void *dados)
 			close(sndFD);
 			saveUsersFile(USER_PATH);
 		break;
+
+		case timeP:
+			read(rcvFD, &t, sizeof(t));
+
+			pthread_mutex_lock(&(pdados->mutex));
+			findFifo(pdados->online, t.username, fifo);
+			pthread_mutex_unlock(&(pdados->mutex));
+
+			sndFD = open(fifo, O_RDWR);
+			resToFE.cmd = timeP;
+
+			resToFE.i = pdados->tempo;
+
+			write(sndFD, &resToFE, sizeof(responseToFrontend));
+			close(sndFD);
+		break;
 		case noCMD:
 			break;
 		default:
@@ -689,8 +735,35 @@ void *receive(void *dados)
 		}
 
 		com = 0;
-		// sleep(2);
 	}
+}
+
+void *segundo(void * dados) {
+
+	TDADOS *pdados = (TDADOS *)dados;
+
+	while (1)
+	{
+		sleep(1);
+		pthread_mutex_lock(&(pdados->mutex));
+		pdados->tempo += 1;
+		item* aux = pdados->itens;
+
+		while (aux != NULL)
+		{
+
+			if (aux->tempo == 0)
+			{
+				removeItem(pdados->itens, aux->id);
+			} else {
+				aux->tempo -= 1;
+			}
+			aux = aux->next;
+		}
+		pthread_mutex_unlock(&(pdados->mutex));
+	}
+	
+
 }
 
 void *TadminInput(item *listaItens)

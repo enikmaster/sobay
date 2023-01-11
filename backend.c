@@ -23,6 +23,7 @@ void main(int argc, char** argv) {
 			TDADOS dados;
 			dados.online = NULL;
 			dados.itens = NULL;
+			dados.tempo = 0;
 			dados.itens = recebeItems(dados.itens);
 			pthread_mutex_init(&(dados.mutex), NULL);
 
@@ -30,6 +31,13 @@ void main(int argc, char** argv) {
 
 			pthread_t rcv;
 			if (pthread_create(&rcv, NULL, &receive, &dados) != 0)
+			{
+				printf("Erro com a thread que recebe data do frontend");
+				return 1;
+			}
+
+			pthread_t tempo;
+			if (pthread_create(&tempo, NULL, &segundo, &dados) != 0)
 			{
 				printf("Erro com a thread que recebe data do frontend");
 				return 1;
@@ -55,41 +63,7 @@ void main(int argc, char** argv) {
 
 			int a;
 			while (1)
-			{
-				sleep(2);
-				//printf("Utilizadores online:\n");
-				/*if (dados.online == NULL)
-				{
-					printf("Sem utilizadores online.\n");
-				} else {
-					utilizadorLogin* aux = malloc(sizeof(utilizadorLogin));
-					aux = dados.online;
-					while (aux != NULL)
-					{
-						printf("Nome: %s\n FIFO: %s", aux->username, aux->fifoname);
-						aux = aux->seguinte;
-					}
-					
-					
-				}*/
-
-				/*if (dados.itens == NULL)
-				{
-					printf("Não há itens à venda.");
-				} else {
-					struct item* aux = dados.itens;
-
-					while (aux != NULL)
-					{
-						printf("Nome: %s | Preço: %d\n", aux->titulo, aux->compreJa);
-						aux = aux->next;
-					}
-					
-				}*/
-				
-				
-				
-			}
+			{}
 
 			pthread_join(rcv, NULL);
 			
